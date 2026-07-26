@@ -141,9 +141,12 @@ def handle_download_request():
 # ------------------------------------------------
 @app.route('/download/<filename>')
 def serve_file(filename):
-    # Questo carica il file MP3 dal tuo disco!
+    # Questo comando serve il file che hai appena creato sul disco.
     return send_from_directory('.', filename)
 
 
 if __name__ == '__main__':
+    print("=====================================================")
+    print("✅ SERVER PRONTO! Avviare la conversione e il download.")
+    print("=====================================================")
     app.run(debug=True, port=5000)
