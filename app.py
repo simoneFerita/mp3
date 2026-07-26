@@ -9,36 +9,22 @@ import mysql.connector
 # =====================================================
 # 1. CONFIGURAZIONE DATABASE (SICURA)
 # =====================================================
-
-app = Flask(__name__)
-CORS(app) 
-
-# -------------------------------------------------
-# TRUCCO DI SICUREZZA: Legge i dati dall'ambiente operativo (NON dal codice)
-# -------------------------------------------------
 try:
-    # Recupera le variabili d'ambiente fornite da Render
     db_user = os.environ.get('DATABASE_USER')
     db_pass = os.environ.get('DATABASE_PASSWORD')
     db_name = os.environ.get('DATABASE_NAME')
     db_host = os.environ.get('DATABASE_HOST')
-    
+
     if not db_user or not db_pass or not db_name or not db_host:
         raise ValueError("ERRORE: Le variabili di ambiente del database non sono state impostate!")
 
-# app.py - La riga da CORREGGERE
-# -------------------------------------------------
-# ATTENZIONE: NON usare 'localhost'
-DATABASE_HOST = "simoneferita.altervista.org" # O l'indirizzo DB esatto fornito da Altervista
-# -------------------------------------------------
-
-   # Costruisce l'URI di connessione
+    # Assicurati di usare l'URL di connessione completo
     DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}'
+
 except ValueError as e:
     print(e)
     # Blocca l'avvio se le credenziali non sono state impostate
     exit()
-
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -46,20 +32,12 @@ db = SQLAlchemy(app)
 
 # --- MODELLO DEL DATABASE ---
 class Song(db.Model):
+    # ... (Il resto della classe Song) ...
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
     artist = db.Column(db.String(128), nullable=False)
     filename = db.Column(db.String(128), unique=True, nullable=False)
     youtube_url = db.Column(db.String(512))
-
-
-# Esegui questa parte UNA SOLA VOLTA per creare la tabella
-with app.app_context():
-    db.create_all()
-    print("\n=====================================================")
-    print("✅ Database e Tabelle MySQL creati con successo!")
-    print("=====================================================")
-
 
 # =====================================================
 # 2. FUNZIONE DI ESTRAZIONE E CONVERSIONE (IL MOTORE)
