@@ -26,7 +26,13 @@ try:
     if not db_user or not db_pass or not db_name or not db_host:
         raise ValueError("ERRORE: Le variabili di ambiente del database non sono state impostate!")
 
-    # Costruisce l'URI di connessione
+# app.py - La riga da CORREGGERE
+# -------------------------------------------------
+# ATTENZIONE: NON usare 'localhost'
+DATABASE_HOST = "simoneferita.altervista.org" # O l'indirizzo DB esatto fornito da Altervista
+# -------------------------------------------------
+
+   # Costruisce l'URI di connessione
     DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}'
 except ValueError as e:
     print(e)
@@ -141,12 +147,9 @@ def handle_download_request():
 # ------------------------------------------------
 @app.route('/download/<filename>')
 def serve_file(filename):
-    # Questo comando serve il file che hai appena creato sul disco.
+    # Questo carica il file MP3 dal tuo disco!
     return send_from_directory('.', filename)
 
 
 if __name__ == '__main__':
-    print("=====================================================")
-    print("✅ SERVER PRONTO! Avviare la conversione e il download.")
-    print("=====================================================")
-    app.run(debug=True, port=5000)
+    app.run(host='https://simoneferita.altervista.org/')
