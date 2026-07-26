@@ -27,7 +27,7 @@ try:
         raise ValueError("ERRORE: Le variabili di ambiente del database non sono state impostate!")
 
     # Costruisce l'URI di connessione
-    DATABASE_URI = f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_host}/{db_name}'
+    DATABASE_URI = f'mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}'
 except ValueError as e:
     print(e)
     # Blocca l'avvio se le credenziali non sono state impostate
