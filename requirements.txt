@@ -1,7 +1,6 @@
 flask
 flask-sqlalchemy
 pymysql
-mysql-connector-python-python-client
 gunicorn
 yt-dlp 
 # NOTA: FFmpeg deve essere installato sul SERVER, non solo nel codice.
