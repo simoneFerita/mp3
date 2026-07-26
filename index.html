@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Musicale - Download MP3</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <h1>Player Musicale - Download MP3</h1>
+        </div >
+    </header>
+
+    <main class="container">
+        
+        <section class="search-section">
+            <h2>Estrai e Scarica l'Audio</h2>
+            <form id="youtubeForm">
+                <input type="text" id="youtubeInput" placeholder="Incolla qui il link YouTube">
+                <button type="submit" class="btn">Mostra Video</button>
+            </form>
+            
+            <!-- NUOVO ELEMENTO PER IL DOWNLOAD -->
+            <button id="downloadButton" class="btn upload-btn" disabled style="display: none;">
+                💾 Scarica MP3 (in attesa del server)
+            </button>
+
+            <p id="messageArea" style="margin-top: 20px; color: orange;"></p>
+        </section>
+
+        <section id="videoContainerWrapper">
+            <div id="videoContainer">
+                <!-- Il player YouTube apparirà qui -->
+            </div >
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 Centro Musicale.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
