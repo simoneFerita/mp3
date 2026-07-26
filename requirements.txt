@@ -1,6 +1,6 @@
 flask
 flask-sqlalchemy
-mysql-connector-python
+pymysql
 mysql-connector-python-python-client
 gunicorn
 yt-dlp 
