@@ -146,4 +146,4 @@ def serve_file(filename):
 
 
 if __name__ == '__main__':
-    app.run(host='simoneferita.altervista.org')
+    app.run(host='https://simoneferita.altervista.org/')
