@@ -145,7 +145,3 @@ def handle_download_request():
 # ------------------------------------------------
 # API ENDPOINT 2: SERVISIONE DEL FILE (IL DOWNLOAD)
 # ------------------------------------------------
-@app.route('/download/<filename>')
-def serve_file(filename):
-    # Questo carica il file MP3 dal tuo disco!
-    return send_from_directory('.', filename)
