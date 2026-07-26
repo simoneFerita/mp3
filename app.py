@@ -149,7 +149,3 @@ def handle_download_request():
 def serve_file(filename):
     # Questo carica il file MP3 dal tuo disco!
     return send_from_directory('.', filename)
-
-
-if __name__ == '__main__':
-    app.run(host='https://simoneferita.altervista.org/')
