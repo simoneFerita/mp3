@@ -1,32 +1,44 @@
-# app.py - IL MOTORE PYTHON COMPLETO (Backend)
+# app.py - IL MOTORE PYTHON COMPLETO E FINALE (Versione SICURA)
 from flask import Flask, request, jsonify, send_from_directory
 import subprocess
 import os 
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy 
-import mysql.connector # Driver di connessione a MySQL
+import mysql.connector 
 
 # =====================================================
-# 1. CONFIGURAZIONE DATABASE
+# 1. CONFIGURAZIONE DATABASE (SICURA)
 # =====================================================
 
 app = Flask(__name__)
 CORS(app) 
 
-# ATTENZIONE: DEVI SOSTITUIRE QUESTE VALORI CON I TUOI DATI REALI DI ALTERVISTA
-DATABASE_USER = 
-DATABASE_PASSWORD =  # <-- IL TUO PASSWORD
-DATABASE_NAME = "simoneferita"
-DATABASE_HOST = "https://simoneferita.altervista.org/mp3/" # Manteniamo localhost per il test locale
+# -------------------------------------------------
+# TRUCCO DI SICUREZZA: Legge i dati dall'ambiente operativo (NON dal codice)
+# -------------------------------------------------
+try:
+    # Recupera le variabili d'ambiente fornite da Render
+    db_user = os.environ.get('DATABASE_USER')
+    db_pass = os.environ.get('DATABASE_PASSWORD')
+    db_name = os.environ.get('DATABASE_NAME')
+    db_host = os.environ.get('DATABASE_HOST')
+    
+    if not db_user or not db_pass or not db_name or not db_host:
+        raise ValueError("ERRORE: Le variabili di ambiente del database non sono state impostate!")
 
-# Costruisci l'URI di connessione
-DATABASE_URI = f'mysql+mysqlconnector://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'
+    # Costruisce l'URI di connessione
+    DATABASE_URI = f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_host}/{db_name}'
+except ValueError as e:
+    print(e)
+    # Blocca l'avvio se le credenziali non sono state impostate
+    exit()
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
-# --- MODELLO DEL DATABASE (La struttura della tabella 'song') ---
+# --- MODELLO DEL DATABASE ---
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False)
@@ -34,7 +46,8 @@ class Song(db.Model):
     filename = db.Column(db.String(128), unique=True, nullable=False)
     youtube_url = db.Column(db.String(512))
 
-# Esegui questa parte una sola volta per creare la tabella
+
+# Esegui questa parte UNA SOLA VOLTA per creare la tabella
 with app.app_context():
     db.create_all()
     print("\n=====================================================")
@@ -43,17 +56,14 @@ with app.app_context():
 
 
 # =====================================================
-# 2. FUNZIONE DI ESTRAZIONE E CONVERSIONE (IL TRUCCO)
+# 2. FUNZIONE DI ESTRAZIONE E CONVERSIONE (IL MOTORE)
 # =====================================================
-
+# ... (Il resto di questa funzione non cambia) ...
+# (Copia l'intera funzione 'extract_audio_from_youtube' da cui sopra)
 def extract_audio_from_youtube(youtube_url):
-    """
-    Esegue yt-dlp per scaricare, estrarre l'audio e rinominare il file.
-    """
+    # ... (INCOLLA QUI L'INTERA FUNZIONE) ...
     output_template = "%(title)s.%(ext)s" 
-    
     try:
-        # Il comando fa tutto: download, conversione in mp3, e nomina il file!
         command = [
             'yt-dlp', 
             '--extract-audio', 
@@ -62,63 +72,64 @@ def extract_audio_from_youtube(youtube_url):
             '-o', output_template, 
             youtube_url
         ]
-        
-        # Esegue il comando (ATTENZIONE: richiede yt-dlp e ffmpeg installati sul sistema)
         subprocess.run(command, check=True, capture_output=True, text=True)
         
-        # Troviamo il file appena creato nella directory corrente
         filename_found = [f for f in os.listdir('.') if f.endswith('.mp3')]
         
         if filename_found:
             final_filename = filename_found[0] 
-            return {"success": True, "message": "Audio elaborato con successo!", "filename": final_filename}
+            
+            base_name = os.path.splitext(final_filename)[0]
+            parts = base_name.split(' - ')
+            
+            if len(parts) >= 2:
+                artist_name = parts[0].strip()
+                title_name = parts[1].strip()
+            else:
+                artist_name = "Sconosciuto"
+                title_name = base_name
+            
+            return {
+                "success": True, 
+                "filename": final_filename, 
+                "title": title_name, 
+                "artist": artist_name
+            }
         else:
             return {"success": False, "error": "Conversione avvenuta, ma il file .mp3 non è stato trovato."}
 
-    except subprocess.CalledProcessError as e:
-        return {"success": False, "error": f"ERRORE DI ESECUZIONE: Assicurati che yt-dlp e ffmpeg siano installati. Dettagli: {e.stderr}"}
     except Exception as e:
-        return {"success": False, "error": f"Errore sconosciuto: {e}"}
+        return {"success": False, "error": f"ERRORE: Controlla yt-dlp e ffmpeg! Dettagli: {e}"}
 
 
 # ------------------------------------------------
-# API ENDPOINT 1: INIZIA IL LAVORO
+# API ENDPOINT 1: INIZIA IL LAVORO E SALVA NEL DB
 # ------------------------------------------------
 @app.route('/api/download-audio', methods=['POST'])
 def handle_download_request():
+    # ... (Il resto della logica rimarrà identica) ...
     data = request.get_json()
     if not data or 'url' not in data:
         return jsonify({"success": False, "error": "URL non fornito"}), 400
 
     youtube_url = data['url']
     
-    # 1. Esegue la conversione e ottiene il nome del file
     extraction_result = extract_audio_from_youtube(youtube_url)
 
     if extraction_result['success']:
         filename = extraction_result['filename']
         
-        # 2. SALVA IL RECORD NEL DATABASE (Cataloga)
         try:
-            # Tentativo di estrarre Titolo e Artista dal nome del file per pulizia nel DB
-            parts = filename.split(' - ')
-            if len(parts) >= 2:
-                title = parts[1].replace('.mp3', '').strip()
-                artist = parts[0].replace('.mp3', '').strip()
-            else:
-                title = filename
-                artist = "Sconosciuto"
-            
             song_record = Song(
-                title=title,
-                artist=artist,
+                title=extraction_result['title'],
+                artist=extraction_result['artist'],
                 filename=filename,
                 youtube_url=youtube_url
             )
             db.session.add(song_record)
             db.session.commit()
             
-            return jsonify({"success": True, "message": "Audio salvato e catalogato nel database!", "filename": filename})
+            return jsonify({"success": True, "filename": filename})
         except Exception as e:
              return jsonify({"success": False, "error": f"Errore al salvataggio nel database: {e}"})
     else:
@@ -130,13 +141,9 @@ def handle_download_request():
 # ------------------------------------------------
 @app.route('/download/<filename>')
 def serve_file(filename):
-    # Questo dice al server: "Dai questo file all'utente che lo ha chiesto."
+    # Questo carica il file MP3 dal tuo disco!
     return send_from_directory('.', filename)
 
 
 if __name__ == '__main__':
-    print("\n=====================================================")
-    print("✅ SERVER PRONTO! Avviare la conversione e il download.")
-    print("=====================================================")
-    # Per il test locale:
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)
