@@ -9,6 +9,10 @@ import mysql.connector
 # =====================================================
 # 1. CONFIGURAZIONE DATABASE (SICURA)
 # =====================================================
+app = Flask(__name__)
+CORS(app)
+
+
 try:
     db_user = os.environ.get('DATABASE_USER')
     db_pass = os.environ.get('DATABASE_PASSWORD')
