@@ -10,7 +10,7 @@ import mysql.connector
 # 1. CONFIGURAZIONE DATABASE (SICURA)
 # =====================================================
 app = Flask(__name__)
-CORS(app)
+
 
 
 try:
