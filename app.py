@@ -133,5 +133,8 @@ def serve_file(filename):
     return send_from_directory('.', filename)
 
 
+# Esegui questa linea (questa è la tua nuova riga finale)
 if __name__ == '__main__':
-    app.run(host='simoneferita.altervista.org/')
+    # NON usare app.run() per la produzione.
+    # app.run(host='0.0.0.0', port=5000) 
+    pass # Togli questo, perché Gunicorn lo farà da solo.
